@@ -9,10 +9,12 @@ import org.springframework.web.bind.annotation.RestController
 import ru.quipy.api.ProjectAggregate
 import ru.quipy.api.ProjectCreatedEvent
 import ru.quipy.api.TaskCreatedEvent
+import ru.quipy.api.UserAddedToProjectEvent
 import ru.quipy.core.EventSourcingService
 import ru.quipy.logic.ProjectAggregateState
-import ru.quipy.logic.addTask
+import ru.quipy.logic.addUser
 import ru.quipy.logic.create
+import ru.quipy.logic.createTask
 import java.util.*
 
 @RestController
@@ -23,7 +25,7 @@ class ProjectController(
 
     @PostMapping("/{projectTitle}")
     fun createProject(@PathVariable projectTitle: String, @RequestParam creatorId: String) : ProjectCreatedEvent {
-        return projectEsService.create { it.create(UUID.randomUUID(), projectTitle, creatorId) }
+        return projectEsService.create { it.create(UUID.randomUUID(), projectTitle, UUID.fromString(creatorId)) }
     }
 
     @GetMapping("/{projectId}")
@@ -31,10 +33,17 @@ class ProjectController(
         return projectEsService.getState(projectId)
     }
 
-    @PostMapping("/{projectId}/tasks/{taskName}")
-    fun createTask(@PathVariable projectId: UUID, @PathVariable taskName: String) : TaskCreatedEvent {
+    @PostMapping("/{projectId}/users/{userId}")
+    fun addUser(@PathVariable projectId: UUID, @PathVariable userId: UUID) : UserAddedToProjectEvent {
         return projectEsService.update(projectId) {
-            it.addTask(taskName)
+            it.addUser(userId, projectId)
+        }
+    }
+
+    @PostMapping("/{projectId}/statuses/{statusId}/tasks/{title}")
+    fun createTask(@PathVariable projectId: UUID, @PathVariable statusId: UUID, @PathVariable title: String, @RequestParam description: String) : TaskCreatedEvent {
+        return projectEsService.update(projectId) {
+            it.createTask(projectId, title, description, statusId)
         }
     }
 }
