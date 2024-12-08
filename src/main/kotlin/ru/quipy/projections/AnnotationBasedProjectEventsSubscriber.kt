@@ -4,6 +4,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import ru.quipy.api.ProjectAggregate
+import ru.quipy.api.StatusCreatedEvent
 import ru.quipy.api.TaskCreatedEvent
 import ru.quipy.streams.annotation.AggregateSubscriber
 import ru.quipy.streams.annotation.SubscribeEvent
@@ -21,5 +22,10 @@ class AnnotationBasedProjectEventsSubscriber {
         logger.info("Task created: {}", event.title)
     }
 
-    // у меня ноль идей зачем нужны два этих
+    @SubscribeEvent
+    fun statusCreatedSubscriber(event: StatusCreatedEvent) {
+        logger.info("Status created: {}", event.statusName)
+    }
+
+    // может еще на что-то подписаться
 }

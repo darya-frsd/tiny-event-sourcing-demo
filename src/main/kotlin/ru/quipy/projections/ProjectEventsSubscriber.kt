@@ -4,10 +4,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import ru.quipy.api.ProjectAggregate
-import ru.quipy.api.ProjectCreatedEvent
-import ru.quipy.api.TaskCreatedEvent
-import ru.quipy.api.UserAddedToProjectEvent
+import ru.quipy.api.*
 import ru.quipy.streams.AggregateSubscriptionsManager
 import javax.annotation.PostConstruct
 
@@ -34,6 +31,12 @@ class ProjectEventsSubscriber {
             `when`(TaskCreatedEvent::class) { event ->
                 logger.info("Task created: {}", event.title)
             }
+
+            `when`(StatusCreatedEvent::class) { event ->
+                logger.info("Status created: {}", event.statusName)
+            }
+
+            // тут можно соответственно побольше подписаться
         }
     }
 }

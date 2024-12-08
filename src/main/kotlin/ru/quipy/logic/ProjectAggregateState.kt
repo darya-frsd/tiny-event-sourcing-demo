@@ -75,7 +75,7 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
 
     @StateTransitionFunc
     fun taskStatusChangedApply(event: TaskStatusChangedEvent) {
-        var task: TaskEntity = TaskEntity() // очень плохо.... как по-другому... помогитбе....
+        var task = TaskEntity() // очень плохо.... как по-другому... помогитбе....
         projectStatuses[event.oldStatusId]?.tasksAssigned?.let {
             task = it[event.taskId]
                 ?: throw IllegalArgumentException("no such task: ${event.taskId} in that status (${event.oldStatusId})")
