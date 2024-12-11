@@ -1,21 +1,19 @@
 package ru.quipy.logic
 
-import ru.quipy.api.*
+import ru.quipy.api.aggregates.UserAggregate
+import ru.quipy.api.events.UserCreatedEvent
 import ru.quipy.core.annotations.StateTransitionFunc
 import ru.quipy.domain.AggregateState
 import java.util.*
 
-class UserAggregateState : AggregateState<UUID, UserAggregate>
-{
+class UserAggregateState : AggregateState<UUID, UserAggregate> {
     private lateinit var userId: UUID
-    var createdAt: Long = System.currentTimeMillis()
-    var updatedAt: Long = System.currentTimeMillis()
-
     lateinit var nickname: String
     lateinit var password: String
-    lateinit var fullName : String
+    lateinit var fullName: String
+    var createdAt: Long = System.currentTimeMillis()
 
-    override fun getId() = userId
+    override fun getId(): UUID = userId
 
     @StateTransitionFunc
     fun userCreatedApply(event: UserCreatedEvent) {
@@ -23,12 +21,9 @@ class UserAggregateState : AggregateState<UUID, UserAggregate>
         nickname = event.nickname
         password = event.password
         fullName = event.fullName
-        updatedAt = event.createdAt
+        createdAt = event.createdAt
     }
 
-//    @StateTransitionFunc
-//    fun userAuthenticatedApply(event: UserAuthenticatedEvent) {
-//
-//        updatedAt = createdAt
-//    }
+    // Метод для проверки, инициализирован ли userId
+    fun isUserIdInitialized(): Boolean = this::userId.isInitialized
 }

@@ -3,9 +3,9 @@ package ru.quipy.projections
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import ru.quipy.api.ProjectAggregate
-import ru.quipy.api.StatusCreatedEvent
-import ru.quipy.api.TaskCreatedEvent
+import ru.quipy.api.aggregates.ProjectAggregate
+import ru.quipy.api.events.StatusCreatedEvent
+import ru.quipy.api.events.TaskCreatedEvent
 import ru.quipy.streams.annotation.AggregateSubscriber
 import ru.quipy.streams.annotation.SubscribeEvent
 
