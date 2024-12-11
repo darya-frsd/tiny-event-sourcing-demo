@@ -4,12 +4,12 @@ import ru.quipy.api.events.ProjectCreatedEvent
 import ru.quipy.api.events.TaskCreatedEvent
 import ru.quipy.api.events.UserAddedToProjectEvent
 import java.util.*
-fun ProjectAggregateState.create(id: UUID, title: String, creatorId: UUID): ProjectCreatedEvent {
+fun ProjectAggregateState.create(title: String, creatorId: UUID): ProjectCreatedEvent {
     if (isProjectIdInitialized()) {
         throw IllegalStateException("Project already exists.")
     }
     return ProjectCreatedEvent(
-            projectId = id,
+            projectId = UUID.randomUUID(),
             title = title,
             creatorId = creatorId
     )

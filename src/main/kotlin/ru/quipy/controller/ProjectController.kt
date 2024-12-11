@@ -20,7 +20,7 @@ class ProjectController(
     @PostMapping
     fun createProject(@RequestParam title: String, @RequestParam creatorId: UUID): ProjectCreatedEvent {
         return projectEsService.create {
-            it.create(UUID.randomUUID(), title, creatorId)
+            it.create(title, creatorId)
         }
     }
 

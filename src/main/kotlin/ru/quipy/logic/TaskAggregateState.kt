@@ -1,9 +1,15 @@
 package ru.quipy.logic
 
-import ru.quipy.api.*
+import ru.quipy.api.aggregates.TaskAggregate
+import ru.quipy.api.events.TaskAssignedToUserEvent
+import ru.quipy.api.events.TaskCreatedEvent
+import ru.quipy.api.events.TaskRenamedEvent
+import ru.quipy.api.events.TaskStatusUpdatedEvent
+import ru.quipy.core.annotations.StateTransitionFunc
+import ru.quipy.domain.AggregateState
 import java.util.*
 
-class TaskAggregateState {
+class TaskAggregateState : AggregateState<UUID, TaskAggregate> {
     lateinit var taskId: UUID
     lateinit var projectId: UUID
     lateinit var title: String
@@ -12,35 +18,32 @@ class TaskAggregateState {
     var assignedUserId: UUID? = null
     val comments: MutableList<String> = mutableListOf()
 
-    fun createTask(projectId: UUID, title: String, description: String, statusId: UUID): TaskCreatedEvent {
+    fun isTaskIdInitialized(): Boolean = this::taskId.isInitialized
+
+    override fun getId(): UUID = this.taskId
+
+    @StateTransitionFunc
+    fun taskCreatedApply(event: TaskCreatedEvent) {
         if (::taskId.isInitialized) throw IllegalStateException("Task already exists.")
-        return TaskCreatedEvent(
-                taskId = UUID.randomUUID(),
-                projectId = projectId,
-                title = title,
-                description = description,
-                statusId = statusId
-        )
+        taskId = event.taskId
+        projectId = event.projectId
+        title = event.title
+        description = event.description
+        statusId = event.statusId
     }
 
-    fun assignUserToTask(userId: UUID): UserAssignedToTaskEvent {
-        return UserAssignedToTaskEvent(
-                taskId = this.taskId,
-                userId = userId
-        )
+    @StateTransitionFunc
+    fun taskRenamedApply(event: TaskRenamedEvent){
+        title = event.newTitle
     }
 
-    fun updateTaskStatus(newStatusId: UUID): TaskStatusUpdatedEvent {
-        return TaskStatusUpdatedEvent(
-                taskId = this.taskId,
-                statusId = newStatusId
-        )
+    @StateTransitionFunc
+    fun userAssignedApply(event: TaskAssignedToUserEvent) {
+        assignedUserId = event.userId
     }
 
-    fun addComment(comment: String): CommentAddedToTaskEvent {
-        return CommentAddedToTaskEvent(
-                taskId = this.taskId,
-                comment = comment
-        )
+    @StateTransitionFunc
+    fun statusUpdatedApply(event: TaskStatusUpdatedEvent) {
+        statusId = event.newStatusId
     }
 }

@@ -13,7 +13,7 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
     lateinit var projectTitle: String
     val projectUsers = mutableSetOf<UUID>()
     val projectTasks = mutableMapOf<UUID, TaskEntity>()
-    val projectStatuses: MutableMap<UUID, String> = mutableMapOf()
+    val projectStatuses: MutableMap<UUID, StatusEntity> = mutableMapOf()
 
     override fun getId(): UUID = projectId
     @StateTransitionFunc
@@ -33,34 +33,31 @@ class ProjectAggregateState : AggregateState<UUID, ProjectAggregate> {
         projectTasks[event.taskId] = TaskEntity(event.taskId, event.title, event.description, event.statusId)
     }
 
+    @StateTransitionFunc
+    fun statusCreatedApply(event: StatusCreatedEvent) {
+        projectStatuses[event.statusId] = StatusEntity(event.statusId, event.statusName, event.statusColor)
+    }
+
     data class TaskEntity(val id: UUID, val title: String, val description: String, val statusId: UUID)
+    data class StatusEntity(val id: UUID, val name: String, val color: String)
 
     fun isProjectIdInitialized(): Boolean = this::projectId.isInitialized
 
-    fun addTask(taskId: UUID, title: String, description: String, statusId: UUID): TaskAddedToProjectEvent {
-        if (taskId in projectTasks) throw IllegalArgumentException("Task already exists in the project.")
-        return TaskAddedToProjectEvent(
-                projectId = this.projectId,
-                taskId = taskId
-        )
-    }
-
-    fun removeTask(taskId: UUID): TaskRemovedFromProjectEvent {
-        if (taskId !in projectTasks) throw IllegalArgumentException("Task does not exist in the project.")
-        return TaskRemovedFromProjectEvent(
-                projectId = this.projectId,
-                taskId = taskId
-        )
-    }
-
     @StateTransitionFunc
     fun taskAddedToProjectApply(event: TaskAddedToProjectEvent) {
+        if (event.taskId in projectTasks) throw IllegalArgumentException("Task already exists in the project.")
         projectTasks[event.taskId] = TaskEntity(
                 id = event.taskId,
                 title = "Default title", // Заполните или измените, если данные передаются в событии
                 description = "Default description", // Заполните или измените, если данные передаются в событии
                 statusId = UUID.randomUUID() // Или возьмите статус из события, если он передаётся
         )
+    }
+
+    @StateTransitionFunc
+    fun taskRemovedFromProjectApply(event: TaskRemovedFromProjectEvent) {
+        if (event.taskId !in projectTasks) throw IllegalArgumentException("Task does not exist in the project.")
+        projectTasks.remove(event.taskId)
     }
 
 }

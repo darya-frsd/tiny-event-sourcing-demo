@@ -26,17 +26,6 @@ class TaskCreatedEvent(
         createdAt = createdAt,
 )
 
-// Событие удаления задачи
-@DomainEvent(name = TASK_DELETED_EVENT)
-class TaskDeletedEvent(
-        val taskId: UUID,
-        val projectId: UUID,
-        createdAt: Long = System.currentTimeMillis(),
-) : Event<TaskAggregate>(
-        name = TASK_DELETED_EVENT,
-        createdAt = createdAt,
-)
-
 // Событие переименования задачи
 @DomainEvent(name = TASK_RENAMED_EVENT)
 class TaskRenamedEvent(
